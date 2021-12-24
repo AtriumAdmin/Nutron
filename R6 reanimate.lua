@@ -1,213 +1,110 @@
-if not _G.Velocity then _G.Velocity = Vector3.new(30,0,0) end
-
--- adding net so we dont lose the body
-local plr = game.Players.LocalPlayer
-game:GetService("RunService").RenderStepped:Connect(function()
-    settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
-    settings().Physics.AllowSleep = false
-    game.Players.LocalPlayer.ReplicationFocus = workspace
-    sethiddenproperty(plr,"SimulationRadius",1000)
-    sethiddenproperty(plr,"MaxSimulationRadius",1000)
-end)
-
-
-
--- Creating Early Variables.
-local Player = game.Players.LocalPlayer
+--// Variables
+local RunService = game:GetService("RunService")
+local Player = game:GetService("Players").LocalPlayer
 local Character = Player.Character
-local PlayerName = Player.Name
-local Physics = settings().Physics
-local Head = Character:FindFirstChild("Head")
-local Torso = Character:FindFirstChild("Torso")
-local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
-local Humanoid = Character:FindFirstChild("Humanoid")
-local LeftArm = Character:FindFirstChild("Left Arm")
-local LeftLeg = Character:FindFirstChild("Left Leg")
-local RightArm = Character:FindFirstChild("Right Arm")
-local RightLeg = Character:FindFirstChild("Right Leg")
-local Reanimated = true
-
-if Humanoid.RigType == Enum.HumanoidRigType.R15 then
-    game.StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text = "[Nutron] You are on R15! Please use the R15 Reanimation instead.",
-        Color = Color3.fromRGB(255, 10, 70),
-        TextSize = 18,
-        Font = Enum.Font.Ubuntu
-    });
-return end
-if game.Players.LocalPlayer.Character:FindFirstChild("CoolHubTutorial") or workspace:FindFirstChild("CoolHubTutorial") then
-    game.StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text = "[Nutron] You are already reanimated! Please reset to unreanimate.",
-        Color = Color3.fromRGB(255, 10, 70),
-        TextSize = 18,
-        Font = Enum.Font.Ubuntu
-    });
-return end
-
-Physics.AllowSleep = false
-Physics.ThrottleAdjustTime = -9e9
-Player.ReplicationFocus = workspace
 Character.Archivable = true
--- Checks if player died so it doesnt run again.
-game:WaitForChild("Run Service").RenderStepped:Connect(function()
-if Character:FindFirstChild("Humanoid").Health == 0 then
-    Reanimated = false
-    wait(9e9^30)
-    end
-end)
--- Start reanimation
-game:WaitForChild("Run Service").Heartbeat:Connect(function()
-    if Reanimated == true then
-        if Character.CoolHubTutorial then
-            Character.Torso.CFrame=Character.CoolHubTutorial.Torso.CFrame
-        end
-		RightArm.Velocity = _G.Velocity
-        RightLeg.Velocity =_G.Velocity
-        LeftArm.Velocity = _G.Velocity
-        LeftLeg.Velocity = _G.Velocity
-                    if _G.Fling == true then
-            Torso.Velocity = Vector3.new(9999,9999,9999)
-            else
-                Torso.Velocity = Vector3.new(-28.05,1,1)
-                end
-        HumanoidRootPart.Velocity = _G.Velocity
-        for _, Accessories in pairs(Character:GetDescendants()) do
-            if Accessories:IsA("Accessory") then
-                Accessories.Handle.Velocity = _G.Velocity
-            end
+local ClonedCharacter = Character:Clone()
+
+--// Main
+ClonedCharacter.Archivable = true
+ClonedCharacter.Parent = Character
+ClonedCharacter.HumanoidRootPart.CFrame = Character.Torso.CFrame
+ClonedCharacter.Name = "Dummy"
+
+--// Hide Clone
+for i, v in pairs(ClonedCharacter:GetDescendants()) do if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 1 end end
+
+--// Noclip
+local NoClipTrigger
+function Noclip()
+	for i, v in pairs(Character:GetDescendants()) do
+		if v:IsA("BasePart") then
+			v.CanCollide = false
+		end
 	end
+end
+
+NoClipTrigger = RunService.Stepped:Connect(Noclip) 
+
+--\\ Attaching
+function Attachments(P0,P1)
+local AlignPosition = Instance.new("AlignPosition", P0)
+local AlignOrientation = Instance.new("AlignOrientation", P0)
+local Attachment1 = Instance.new("Attachment", P0)
+local Attachment2 = Instance.new("Attachment", P1)
+AlignPosition.MaxForce = 9e9
+AlignOrientation.MaxTorque = 9e9
+AlignPosition.Responsiveness = 9e9
+AlignOrientation.Responsiveness = 9e9
+
+AlignPosition.Attachment0 = Attachment1
+AlignOrientation.Attachment0 = Attachment1
+AlignPosition.Attachment1 = Attachment2
+AlignOrientation.Attachment1 = Attachment2
+
+Attachment1.Position = Vector3.new(0,0,0)
+Attachment1.Orientation = Vector3.new(0,0,0)
+end
+
+wait()
+
+local Netlessing
+--// Align
+Character.Torso["Left Shoulder"]:Destroy();Character.Torso["Right Shoulder"]:Destroy();Character.Torso["Left Hip"]:Destroy();Character.Torso["Right Hip"]:Destroy()
+
+Attachments(Character["Torso"],ClonedCharacter["Torso"]) 
+Attachments(Character["Right Arm"],ClonedCharacter["Right Arm"])
+Attachments(Character["Left Arm"],ClonedCharacter["Left Arm"])
+Attachments(Character["Right Leg"],ClonedCharacter["Right Leg"])
+Attachments(Character["Left Leg"],ClonedCharacter["Left Leg"])
+--// No Hats for the clone.
+for i, v in pairs (Character:GetChildren()) do
+	if v:IsA("Accessory") then
+		ClonedCharacter[v.Name]:Destroy()
+	end
+end
+--// Movement
+game:GetService("RunService").RenderStepped:Connect(function()
+	if Character:FindFirstChild("Dummy") then
+	for i, v in pairs(Character.Humanoid:GetPlayingAnimationTracks()) do
+	   v:Stop()
+	end
+		ClonedCharacter:FindFirstChild("Humanoid"):Move(Character.Humanoid.MoveDirection, false)
+	end
+end)
+
+game:GetService("UserInputService").JumpRequest:connect(function()
+	if Character:FindFirstChild("Dummy") then
+		if ClonedCharacter.Humanoid.FloorMaterial ~= Enum.Material.Air then
+		   ClonedCharacter.Humanoid.Sit = false
+		   ClonedCharacter.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+--// Ending
+
+workspace[game.Players.LocalPlayer.Name].Humanoid.Died:Connect(function()
+	NoClipTrigger:Disconnect()
+	Netlessing:Disconnect()
+	game.Players.LocalPlayer.Character = Character
+	ClonedCharacter:Remove()
+	Character:BreakJoints()
+		   _G.ScriptRunning = false
 	
-    end
 end)
 
-local CopyCharacter = Character:Clone()
-CopyCharacter.Parent = Character 
-CopyCharacter.Name = "CoolHubTutorial" -- you can always change name.
-
-for k,l in pairs(Character.CoolHubTutorial:GetDescendants()) do 
-    if l:IsA("Part") or l:IsA("Decal") then
-    l.Transparency=1
-end
-end
-
-Character.Torso["Left Shoulder"]:Destroy()
-Character.Torso["Right Shoulder"]:Destroy()
-Character.Torso["Left Hip"]:Destroy()
-Character.Torso["Right Hip"]:Destroy()
-HumanoidRootPart.RootJoint:Destroy()
---  Using Mizt's align
-local CountSCIFIMOVIELOL = 1
-function AlignCharacter(Part0,Part1,Position,Angle)
-    local AlignPos = Instance.new('AlignPosition', Part1); AlignPos.Name = "AliP_"..CountSCIFIMOVIELOL
-    AlignPos.ApplyAtCenterOfMass = true;
-    AlignPos.MaxForce = 5772000--67752;
-    AlignPos.MaxVelocity = math.huge/9e110;
-    AlignPos.ReactionForceEnabled = false;
-    AlignPos.Responsiveness = 200;
-    AlignPos.RigidityEnabled = false;
-    local AlignOri = Instance.new('AlignOrientation', Part1); AlignOri.Name = "AliO_"..CountSCIFIMOVIELOL
-    AlignOri.MaxAngularVelocity = math.huge/9e110;
-    AlignOri.MaxTorque = 5772000
-    AlignOri.PrimaryAxisOnly = false;
-    AlignOri.ReactionTorqueEnabled = false;
-    AlignOri.Responsiveness = 200;
-    AlignOri.RigidityEnabled = false;
-    local AttachmentA=Instance.new('Attachment',Part1); AttachmentA.Name = "AthP_"..CountSCIFIMOVIELOL
-    local AttachmentB=Instance.new('Attachment',Part0); AttachmentB.Name = "AthP_"..CountSCIFIMOVIELOL
-    local AttachmentC=Instance.new('Attachment',Part1); AttachmentC.Name = "AthO_"..CountSCIFIMOVIELOL
-    local AttachmentD=Instance.new('Attachment',Part0); AttachmentD.Name = "AthO_"..CountSCIFIMOVIELOL
-    AttachmentC.Orientation = Angle
-    AttachmentA.Position = Position
-    AlignPos.Attachment1 = AttachmentA;
-    AlignPos.Attachment0 = AttachmentB;
-    AlignOri.Attachment1 = AttachmentC;
-    AlignOri.Attachment0 = AttachmentD;
-    CountSCIFIMOVIELOL = CountSCIFIMOVIELOL + 1
+--// Netless
+function Netless()
+for i,v in next, workspace[game.Players.LocalPlayer.Name]:GetChildren() do
+		if v:IsA("BasePart") then 
+			v.Velocity = Vector3.new(0,-32.5,0)
+		elseif v:IsA("Accessory") then 
+			v.Handle.Velocity = Vector3.new(0,-32.5,0)
+		end
+	end
 end
 
-AlignCharacter(Torso,CopyCharacter["Torso"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-AlignCharacter(HumanoidRootPart,CopyCharacter["HumanoidRootPart"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-AlignCharacter(LeftArm,CopyCharacter["Left Arm"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-AlignCharacter(RightArm,CopyCharacter["Right Arm"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-AlignCharacter(LeftLeg,CopyCharacter["Left Leg"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-AlignCharacter(RightLeg,CopyCharacter["Right Leg"],Vector3.new(0,0,0),Vector3.new(0,0,0))
-CopyCharacter:FindFirstChild("HumanoidRootPart").Anchored = false
-spawn(function() 
-    while true do wait()
-        if Character:FindFirstChild("Humanoid").Health == 0 then 
-                Character:BreakJoints()
-                CopyCharacter:BreakJoints()
-        end
-    end 
-end)
+Netlessing = game:GetService("RunService").Heartbeat:Connect(Netless)
 
-
-function nocol(t)
-    for k,l in pairs(Character:GetDescendants()) do 
-        if l:IsA("BasePart")then 
-            HILOL=Instance.new("NoCollisionConstraint",l)
-            HILOL.Part0=l
-            HILOL.Part1=t 
-        end 
-    end 
-end
-
-for k,l in pairs(CopyCharacter:GetDescendants()) do
-     if l:IsA("BasePart")then 
-        nocol(l)
-    end 
-end
-
-
-Torso.Anchored = true
-LeftArm.Anchored = true
-RightArm.Anchored = true
-LeftLeg.Anchored = true
-RightLeg.Anchored = true
-Head.Anchored = true
-
-for k=0,30 do wait()
-    CopyCharacter.HumanoidRootPart.RotVelocity = Vector3.new(0,0,0)
-    CopyCharacter.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
-end
-
-Character.Animate.Disabled = true
-
-game:GetService("UserInputService").JumpRequest:connect(function(t)
-    if CopyCharacter.Humanoid.FloorMaterial~=Enum.Material.Air then 
-        CopyCharacter.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        game.Players.LocalPlayer.Character.CoolHubTutorial:FindFirstChildOfClass('Humanoid').Sit=false 
-    end 
-end)
-
-game.RunService.RenderStepped:Connect(function()
-    CopyCharacter.Humanoid:Move(Character.Humanoid.MoveDirection,false)
-    local animtracks = Humanoid:GetPlayingAnimationTracks()
-        for n,l in pairs(animtracks) do 
-            l:Stop()
-        end 
-end)
-
-Torso.Anchored = false
-LeftArm.Anchored = false
-RightArm.Anchored = false
-LeftLeg.Anchored = false
-RightLeg.Anchored = false
-Head.Anchored = false
-
-local something = true
-while true do 
-    if something == true then 
-        for n,l in pairs(Character:children()) do 
-            pcall(function()
-                if l.className=="Part" then 
-                    l.CanCollide=false 
-                elseif 
-                    l.ClassName=="Model" then 
-                        l.Head.CanCollide=false 
-                end
-            end)
-        end
-    end
-game:service("RunService").Stepped:wait()
-end
+Character.HumanoidRootPart:Destroy()
+workspace.Camera.CameraSubject = ClonedCharacter.Humanoid
