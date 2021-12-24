@@ -1,12 +1,4 @@
 pcall(function()
-
-print([[
---------------------------------
-By CKbackup (Sugarie Saffron)                               
-YT: https://www.youtube.com/channel/UC8n9FFz7e6Zo13ob_5F9MJw
-Discord: Sugarie Saffron#4705    
-]])
-
 loadstring(game:HttpGet("https://pastebin.com/raw/uxN7jP7X"))()
 wait(1/60)
 Effects = { }
