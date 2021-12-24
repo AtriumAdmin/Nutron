@@ -19,13 +19,6 @@ B = Air totem(When active, makes all air attacks do more damage)(Only one can be
 N = Rock totem(When active, makes all water attacks do more damage)(Only one can be activated at a time)(Press again to stop)
 ---------]]
 
---And here's another one leaked! Stop stealing from me skids.--
---Please go easy on the moves, this script can hit the part limit VERY fast, so be warned.--
---To be honest, i dislike making Vereus, to see so many skids getting butthurt about it saddens me, it was piss easy to make and it's incredibly unoriginal.--
---You see the amount of attacks? This is what i'm capable of when my shit DOESN'T get stolen whilst in development, take note skids.--
---This is my biggest project yet.--
---For the people who had it before the leak, cry about it, for the people who didn't have it before the leak, enjoy it!--
-
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character.Dummy
 hum = Character.Humanoid
