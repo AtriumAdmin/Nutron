@@ -1,110 +1,78 @@
---// Variables
-local RunService = game:GetService("RunService")
+function Attach(P0,P1,Position,Rotation)
+local A1,A2,AO,AP = Instance.new("Attachment", P0), Instance.new("Attachment", P1),
+Instance.new("AlignOrientation", P0), Instance.new("AlignPosition", P0)
+AO.Attachment0 = A1
+AP.Attachment0 = A1
+AO.Attachment1 = A2
+AP.Attachment1 = A2
+AO.MaxTorque = 5e9
+AP.MaxForce = 5e9
+AO.Responsiveness = 5e9
+AP.Responsiveness = 5e9
+A1.Position = Position or Vector3.new(0,0,0)
+A1.Orientation = Rotation or Vector3.new(0,0,0)
+end
 local Player = game:GetService("Players").LocalPlayer
-local Character = Player.Character
-Character.Archivable = true
-local ClonedCharacter = Character:Clone()
-
---// Main
-ClonedCharacter.Archivable = true
-ClonedCharacter.Parent = Character
-ClonedCharacter.HumanoidRootPart.CFrame = Character.Torso.CFrame
-ClonedCharacter.Name = "Dummy"
-
---// Hide Clone
-for i, v in pairs(ClonedCharacter:GetDescendants()) do if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 1 end end
-
---// Noclip
-local NoClipTrigger
-function Noclip()
-	for i, v in pairs(Character:GetDescendants()) do
-		if v:IsA("BasePart") then
-			v.CanCollide = false
-		end
-	end
-end
-
-NoClipTrigger = RunService.Stepped:Connect(Noclip) 
-
---\\ Attaching
-function Attachments(P0,P1)
-local AlignPosition = Instance.new("AlignPosition", P0)
-local AlignOrientation = Instance.new("AlignOrientation", P0)
-local Attachment1 = Instance.new("Attachment", P0)
-local Attachment2 = Instance.new("Attachment", P1)
-AlignPosition.MaxForce = 9e9
-AlignOrientation.MaxTorque = 9e9
-AlignPosition.Responsiveness = 9e9
-AlignOrientation.Responsiveness = 9e9
-
-AlignPosition.Attachment0 = Attachment1
-AlignOrientation.Attachment0 = Attachment1
-AlignPosition.Attachment1 = Attachment2
-AlignOrientation.Attachment1 = Attachment2
-
-Attachment1.Position = Vector3.new(0,0,0)
-Attachment1.Orientation = Vector3.new(0,0,0)
-end
-
-wait()
-
-local Netlessing
---// Align
-Character.Torso["Left Shoulder"]:Destroy();Character.Torso["Right Shoulder"]:Destroy();Character.Torso["Left Hip"]:Destroy();Character.Torso["Right Hip"]:Destroy()
-
-Attachments(Character["Torso"],ClonedCharacter["Torso"]) 
-Attachments(Character["Right Arm"],ClonedCharacter["Right Arm"])
-Attachments(Character["Left Arm"],ClonedCharacter["Left Arm"])
-Attachments(Character["Right Leg"],ClonedCharacter["Right Leg"])
-Attachments(Character["Left Leg"],ClonedCharacter["Left Leg"])
---// No Hats for the clone.
-for i, v in pairs (Character:GetChildren()) do
-	if v:IsA("Accessory") then
-		ClonedCharacter[v.Name]:Destroy()
-	end
-end
---// Movement
-game:GetService("RunService").RenderStepped:Connect(function()
-	if Character:FindFirstChild("Dummy") then
-	for i, v in pairs(Character.Humanoid:GetPlayingAnimationTracks()) do
-	   v:Stop()
-	end
-		ClonedCharacter:FindFirstChild("Humanoid"):Move(Character.Humanoid.MoveDirection, false)
-	end
+local Character = Player.Character; Character.Archivable = true
+local ReanimateCharacter = Character:Clone()
+ReanimateCharacter.Name = "Dummy"
+ReanimateCharacter.Parent = Character
+-- Noclip
+game:GetService("RunService").Stepped:connect(function()
+	Character.Humanoid.Died:Connect(function()
+		return
+	end)
+	for _,v in pairs(Character:GetDescendants()) do 
+		if v:IsA("BasePart") then 
+            pcall(function()  v.CanCollide = false end)
+        end 
+    end   
+        ReanimateCharacter.Humanoid:Move(Character.Humanoid.MoveDirection)
 end)
 
-game:GetService("UserInputService").JumpRequest:connect(function()
-	if Character:FindFirstChild("Dummy") then
-		if ClonedCharacter.Humanoid.FloorMaterial ~= Enum.Material.Air then
-		   ClonedCharacter.Humanoid.Sit = false
-		   ClonedCharacter.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-		end
-	end
-end)
---// Ending
+for _,v in pairs(ReanimateCharacter:GetDescendants()) do
+	if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 1 end
+end
+--Character.Humanoid.Animator:Destroy()
 
-workspace[game.Players.LocalPlayer.Name].Humanoid.Died:Connect(function()
-	NoClipTrigger:Disconnect()
-	Netlessing:Disconnect()
-	game.Players.LocalPlayer.Character = Character
-	ClonedCharacter:Remove()
-	Character:BreakJoints()
-		   _G.ScriptRunning = false
+-- Netless
+game:GetService("RunService").Heartbeat:connect(function()
+	Character.Humanoid.Died:Connect(function()
+		return
+	end)
+	for _,v in pairs(Character:GetChildren()) do 
+		if v:IsA("BasePart") and v.Name ~= "Torso" then 
+            pcall(function() v.Velocity = Vector3.new(32.495,0,0) end)
+		elseif v:IsA("Accessory") then 
+			pcall(function() v.Handle.Velocity = Vector3.new(32.495,0,0) end)
+        end 
+    end   
+	local Torso1 = Character:FindFirstChild("Torso")
+	local Torso2 = Character:FindFirstChild("GelatekReanim"):FindFirstChild("Torso")
+	pcall(function() Torso1.CFrame = Torso2.CFrame; if _G.Fling == true then Torso1.Velocity = Vector3.new(5000,9000,5000) end end)
+end)
+-- Attaching
+ReanimateCharacter.HumanoidRootPart.CFrame = Character.Torso.CFrame
+Character.HumanoidRootPart:Destroy()
+Character.Torso["Left Hip"]:Destroy()
+Character.Torso["Right Hip"]:Destroy()
+Character.Torso["Left Shoulder"]:Destroy()
+Character.Torso["Right Shoulder"]:Destroy()
+
+Attach(Character.Torso,ReanimateCharacter.Torso)
+Attach(Character["Right Arm"],ReanimateCharacter["Right Arm"])
+Attach(Character["Right Leg"],ReanimateCharacter["Right Leg"])
+Attach(Character["Left Arm"],ReanimateCharacter["Left Arm"])
+Attach(Character["Left Leg"],ReanimateCharacter["Left Leg"])
+game:GetService("UserInputService").JumpRequest:Connect(function()
+	Character.Humanoid.Died:Connect(function()
+		return
+	end)
+	ReanimateCharacter.Humanoid.Sit = false 
+	ReanimateCharacter.Humanoid.Jump = true
+end)
+if workspace:FindFirstChildWhichIsA("Camera") then 
+	workspace:FindFirstChildWhichIsA("Camera").CameraSubject = ReanimateCharacter.Humanoid
+end
 	
 end)
-
---// Netless
-function Netless()
-for i,v in next, workspace[game.Players.LocalPlayer.Name]:GetChildren() do
-		if v:IsA("BasePart") then 
-			v.Velocity = Vector3.new(0,-32.5,0)
-		elseif v:IsA("Accessory") then 
-			v.Handle.Velocity = Vector3.new(0,-32.5,0)
-		end
-	end
-end
-
-Netlessing = game:GetService("RunService").Heartbeat:Connect(Netless)
-
-Character.HumanoidRootPart:Destroy()
-workspace.Camera.CameraSubject = ClonedCharacter.Humanoid
