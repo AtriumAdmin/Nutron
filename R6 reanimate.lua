@@ -48,7 +48,7 @@ game:GetService("RunService").Heartbeat:connect(function()
         end 
     end   
 	local Torso1 = Character:FindFirstChild("Torso")
-	local Torso2 = Character:FindFirstChild("Dummy"):FindFirstChild("Torso")
+	local Torso2 = Character:FindFirstChild("GelatekReanim"):FindFirstChild("Torso")
 	pcall(function() Torso1.CFrame = Torso2.CFrame; if _G.Fling == true then Torso1.Velocity = Vector3.new(5000,9000,5000) end end)
 end)
 -- Attaching
@@ -75,4 +75,3 @@ if workspace:FindFirstChildWhichIsA("Camera") then
 	workspace:FindFirstChildWhichIsA("Camera").CameraSubject = ReanimateCharacter.Humanoid
 end
 	
-end)
